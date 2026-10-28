@@ -334,9 +334,16 @@
               <li class="status-item" data-step="3"><span class="status-mark"></span><span>بررسی پاسخ‌ها</span></li>
               <li class="status-item" data-step="4"><span class="status-mark"></span><span>محاسبهٔ نمرات</span></li>
             </ul>
-            <div class="wait-note" id="wait-note">This Loading section is just for a preview and none of this numbers are real.</div>
+            <div class="wait-note" id="wait-note">پس از اتصال به سرور، متن استخراج‌شده در این بخش نمایش داده می‌شود.</div>
           </section>
         </div>
+        <section class="panel" style="margin-top:22px; padding:20px;">
+          <div class="panel-head" style="padding:0 0 12px;">
+            <h2>متن استخراج‌شده</h2>
+            <span class="tiny-tag" id="ocr-result-status">منتظر فایل</span>
+          </div>
+          <textarea id="ocr-result" rows="8" readonly placeholder="پس از پردازش، متن تشخیص‌داده‌شده در اینجا نمایش داده می‌شود." style="width:100%; resize:vertical; border:1px solid var(--line); border-radius:12px; padding:14px; font:inherit; line-height:2; background:#fbfcff; color:var(--ink);"></textarea>
+        </section>
         <div class="processing-actions">
           <button class="btn btn-outline" id="back-to-upload">بازگشت و انتخاب فایل دیگر</button>
           <button class="btn btn-primary" id="new-exam">آزمون جدید</button>
@@ -533,10 +540,10 @@
       document.getElementById('progress-bar').style.width = '15%';
       document.getElementById('progress-label').textContent = 'آماده‌سازی فایل';
       document.getElementById('progress-number').textContent = '۱۵٪';
-      document.getElementById('wait-note').textContent = 'فایل در این نسخه فقط در مرورگر باز می‌شود؛ هنوز سرور یا موتور هوش مصنوعی به سایت متصل نیست. برای دریافت نمرات واقعی، اتصال بک‌اند و مدل تشخیص دست‌خط لازم است.';
+      document.getElementById('wait-note').textContent = 'فایل برای استخراج متن به سرور ارسال می‌شود. این مرحله فقط متن دست‌نویس را استخراج می‌کند و هنوز نمره‌دهی انجام نمی‌دهد.';
     }
 
-    continueButton.addEventListener('click', function () {
+    continueButton.addEventListener('click', async function () {
       if (!selectedFile) {
         showToast('لطفاً ابتدا یک فایل انتخاب کنید.');
         return;
@@ -544,7 +551,66 @@
 
       renderPreview();
       resetStatus();
+      document.getElementById('ocr-result').value = '';
+      document.getElementById('ocr-result-status').textContent = 'در حال پردازش';
       showPage(processingPage);
+      continueButton.disabled = true;
+      const statusTitle = document.getElementById('status-title');
+      const statusDescription = document.getElementById('status-description');
+      const overallStatus = document.getElementById('overall-status');
+      const progressBar = document.getElementById('progress-bar');
+      const progressLabel = document.getElementById('progress-label');
+      const progressNumber = document.getElementById('progress-number');
+      const steps = Array.from(document.querySelectorAll('.status-item'));
+
+      function updateStep(index, title, description, percent, label) {
+        steps.forEach((item, i) => {
+          item.classList.toggle('active', i === index);
+          item.classList.toggle('complete', i < index);
+          item.querySelector('.status-mark').textContent = i < index ? '✓' : '';
+        });
+        statusTitle.textContent = title;
+        statusDescription.textContent = description;
+        overallStatus.textContent = label;
+        progressBar.style.width = percent + '%';
+        progressNumber.textContent = percent + '٪';
+        progressLabel.textContent = label;
+      }
+
+      updateStep(0, 'در حال ارسال و ثبت فایل...', 'فایل شما برای استخراج متن به سرور ارسال می‌شود.', 20, 'بارگذاری فایل');
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      try {
+        updateStep(1, 'در حال آماده‌سازی صفحات...', 'سرور فایل را برای تشخیص متن آماده می‌کند.', 40, 'آماده‌سازی فایل');
+        const response = await fetch('/api/ocr', { method: 'POST', body: formData });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'پردازش فایل ناموفق بود.');
+
+        updateStep(2, 'تشخیص دست‌خط انجام شد', 'متن استخراج‌شده در پایین صفحه نمایش داده شده است.', 80, 'تشخیص متن');
+        document.getElementById('ocr-result').value = result.text || 'متنی از فایل تشخیص داده نشد.';
+        document.getElementById('ocr-result-status').textContent = 'استخراج انجام شد';
+        steps[2].classList.remove('active');
+        steps[2].classList.add('complete');
+        steps[2].querySelector('.status-mark').textContent = '✓';
+        steps[3].classList.remove('active', 'complete');
+        steps[4].classList.remove('active', 'complete');
+        document.getElementById('main-spinner').classList.add('done');
+        statusTitle.textContent = 'استخراج متن تمام شد';
+        statusDescription.textContent = 'متن زیر را بررسی و در صورت نیاز اصلاح کنید. نمره‌دهی خودکار هنوز به این نسخه اضافه نشده است.';
+        overallStatus.textContent = 'استخراج کامل شد';
+        progressBar.style.width = '100%';
+        progressLabel.textContent = 'استخراج متن کامل شد';
+        progressNumber.textContent = '۱۰۰٪';
+        showToast('متن فایل با موفقیت استخراج شد.');
+      } catch (error) {
+        document.getElementById('ocr-result-status').textContent = 'خطا';
+        statusTitle.textContent = 'پردازش انجام نشد';
+        statusDescription.textContent = error.message || 'ارتباط با سرور برقرار نشد.';
+        overallStatus.textContent = 'خطا';
+        showToast(error.message || 'خطا در ارتباط با سرور.');
+      } finally {
+        continueButton.disabled = false;
+      }
     });
     document.getElementById('back-to-upload').addEventListener('click', () => showPage(uploadPage));
     document.getElementById('new-exam').addEventListener('click', () => {
@@ -554,6 +620,8 @@
       continueButton.disabled = true;
       if (fileUrl) URL.revokeObjectURL(fileUrl);
       fileUrl = null;
+      document.getElementById('ocr-result').value = '';
+      document.getElementById('ocr-result-status').textContent = 'منتظر فایل';
       showPage(uploadPage);
     });
   </script>
