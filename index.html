@@ -237,7 +237,7 @@
             <svg class="account-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M4 21v-2a8 8 0 0 1 16 0v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
           </button>
           <div class="account-panel hidden" id="account-panel" aria-label="پنل حساب کاربری">
-            <!-- این بخش فعلاً عمداً خالی گذاشته شده است. -->
+            <!-- Empty for now -->
           </div>
         </div>
       </div>
@@ -436,7 +436,7 @@
       document.getElementById('signup-top').classList.add('hidden');
       accountWrap.classList.remove('hidden');
       showPage(uploadPage);
-      showToast('ورود نمایشی انجام شد؛ برای حساب واقعی باید سامانهٔ کاربران به سرور متصل شود.');
+      showToast('ورود شما با موفقیت انجام شد')
     });
 
     accountButton.addEventListener('click', () => {
@@ -540,7 +540,6 @@
       document.getElementById('progress-bar').style.width = '15%';
       document.getElementById('progress-label').textContent = 'آماده‌سازی فایل';
       document.getElementById('progress-number').textContent = '۱۵٪';
-      document.getElementById('wait-note').textContent = 'فایل برای استخراج متن به سرور ارسال می‌شود. این مرحله فقط متن دست‌نویس را استخراج می‌کند و هنوز نمره‌دهی انجام نمی‌دهد.';
     }
 
     continueButton.addEventListener('click', async function () {
@@ -596,7 +595,7 @@
         steps[4].classList.remove('active', 'complete');
         document.getElementById('main-spinner').classList.add('done');
         statusTitle.textContent = 'استخراج متن تمام شد';
-        statusDescription.textContent = 'متن زیر را بررسی و در صورت نیاز اصلاح کنید. نمره‌دهی خودکار هنوز به این نسخه اضافه نشده است.';
+        statusDescription.textContent = 'متن زیر را بررسی و در صورت نیاز اصلاح کنید';
         overallStatus.textContent = 'استخراج کامل شد';
         progressBar.style.width = '100%';
         progressLabel.textContent = 'استخراج متن کامل شد';
