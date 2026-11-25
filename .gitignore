@@ -6,4 +6,6 @@ venv/
 .DS_Store
 *.log
 instance/
-uploads/
+dot.db
+uploads/*
+!uploads/.gitkeep

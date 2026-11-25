@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#142b4e">
   <title>Dot | دات — دستیار آزمون تشریحی</title>
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="static/css/styles.css">
 </head>
 <body>
 <header class="topbar">
@@ -64,6 +64,7 @@
             <p class="profile-message" id="profile-message">
               اطلاعات حساب کاربری شما
             </p>
+            <button class="btn btn-outline" id="logout-button" type="button">خروج از حساب</button>
 
           </div>
         </div>
@@ -190,13 +191,13 @@
         <label for="auth-email">ایمیل</label>
         <input id="auth-email" type="email" placeholder="name@example.com" required>
         <label for="auth-password">رمز عبور</label>
-        <input id="auth-password" type="password" placeholder="رمز عبور" minlength="4" required>
+        <input id="auth-password" type="password" placeholder="رمز عبور" minlength="8" required>
         <button class="btn btn-primary" type="submit" id="auth-submit">ورود و ادامه</button>
       </form>
       <div class="modal-switch"><span id="switch-text">حساب کاربری ندارید؟</span> <button class="text-button" id="switch-auth">ثبت‌نام</button></div>
     </section>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="/static/js/main.js"></script>
+  <script type="module" src="static/js/main.js"></script>
 </body>
 </html>

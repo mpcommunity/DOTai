@@ -4,6 +4,6 @@ import { initProfile } from './profile.js';
 import { initUpload } from './upload.js';
 
 bindAccountPanel();
-initAuth();
 initProfile();
 initUpload();
+await initAuth();

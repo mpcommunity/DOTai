@@ -28,7 +28,7 @@ export async function runOcr(file) {
     updateStep(1, 'در حال آماده‌سازی صفحات...',
       'سرور فایل را برای تشخیص متن آماده می‌کند.', 40, 'آماده‌سازی فایل');
 
-    const response = await fetch(OCR_ENDPOINT, { method: 'POST', body: formData });
+    const response = await fetch(OCR_ENDPOINT, { method: 'POST', body: formData, credentials: 'same-origin' });
     const responseText = await response.text();
     let result;
 
